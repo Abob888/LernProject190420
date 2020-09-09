@@ -1,0 +1,1 @@
+'Winner #', self.winner1, "time: ", self.ti, '\n' 
