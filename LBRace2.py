@@ -98,7 +98,7 @@ class Race(QFrame):
 
     def initRace(self):
 
-        # self.winner1 = 0
+        self.fin = 0
 
         self.startButton = QPushButton("START", self)
         self.startButton.move(150, 20)
@@ -116,10 +116,18 @@ class Race(QFrame):
         self.ti = 0
         self.timer = QTimer()
 
-        self.startButton.clicked.connect(self.startLB)
-        # self.startButton.clicked.connect(self.yourLB)
-        self.timer.timeout.connect(self.on_timeout)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.c2y = 609
+        self.pixmap3 = QPixmap("lb3.png")
+        self.lbl2 = QLabel(self)
+        self.lbl2.setPixmap(self.pixmap3)
+        self.lbl2.move(415 + random.randint(-7, 7), self.c2y)
 
+        if self.c2y < 112:
+            self.fin = 1
+        self.startButton.clicked.connect(self.startLB)
+
+        self.timer.timeout.connect(self.on_timeout)
 
         self.saveButton.clicked.connect(self.on_save)
 
@@ -145,30 +153,40 @@ class Race(QFrame):
 
 
     def drawLb(self, y):
-        for a in range(5):
+        for a in range(4):
             x = a * 100 + random.randint(-9, 9)
             pixmap = QPixmap("lb3.png")
             lbl = QLabel(self)
             lbl.resize(40, 40)
             lbl.setPixmap(pixmap)
             lbl.move(x + 15, y)
+        for b in range(5):
             pixmap2 = QPixmap("finish.png")
             ff = QLabel(self)
             ff.setPixmap(pixmap2)
-            ff.move(a * 100 + 5, 80)
+            ff.move(b * 100 + 5, 80)
 
     def keyPressEvent(self, e):
-        if e.type() == QtCore.QEvent.KeyPress:
-            c2y = c - 20
-            c2x = 415 + random.randint(-7, 7)
-            pixmap3 = QPixmap("lb3.png")
-            lbl2 = QLabel(self)
-            lbl2.resize(40, 40)
-            lbl2.setPixmap(pixmap3)
-            lbl2.move(c2x, c2y)
-            lbl2.show()
-        else:
-            pass
+
+        if self.startButton.isEnabled() == False:
+            self.c2y -= 15 + random.randint(-7, 7)
+            self.c2x = 415 + random.randint(-7, 7)
+            self.lbl2.move(self.c2x, self.c2y)
+            self.lbl2.show()
+            if self.c2y < 112:
+                self.timer.stop()
+                self.msg2Statusbar.emit('Finished')
+                self.startButton.setDisabled(False)
+                self.fin = 1
+                winner12 = QLabel(self)
+                winner12.setText('Winner')
+                winner12.move(415, 60)
+                winner12.show()
+                pixmap2 = QPixmap("finish.png")
+                ff = QLabel(self)
+                ff.setPixmap(pixmap2)
+                ff.move(405, 80)
+                ff.show()
         QtWidgets.QFrame.keyPressEvent(self, e)
 
 
@@ -199,13 +217,17 @@ class Race(QFrame):
             speedlist.show()
         for k2 in range(5):
             kori.append(c)
+        speedlist5 = QLabel(self)
+        speedlist5.setText('# 5')
+        speedlist5.move(415, 650)
+        speedlist5.show()
+
+        '''finish = Race.keyPressEvent(self)
+        if finish:
+            break startLB()'''
 
         while c >= 112:
             QtWidgets.qApp.processEvents()
-            self.grabKeyboard()
-            self.setFocusPolicy(QtCore.Qt.StrongFocus)
-            self.Race.keyPressEvent()
-            # lbl.setFocus()
 
             for b in range(4):
 
@@ -247,22 +269,13 @@ class Race(QFrame):
                     self.winner1 = str(b + 1)
                     winner12 = QLabel(self)
                     winner12.setText('Winner')
-                        # str(winner1))
                     winner12.move(b * 100 + 15, 60)
                     winner12.show()
                     break
 
-            # self.msg2Statusbar.emit(str(c))
             c = con
-            self.releaseKeyboard()
 
         self.timer.stop()
-
-        self.f = open('helps.txt', 'a')
-        for i in range(istap):
-            self.f.write(str(koordinate[i]))
-            self.f.write('\n')
-        self.f.close()
 
         self.msg2Statusbar.emit('Finished')
         self.startButton.setDisabled(False)
