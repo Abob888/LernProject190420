@@ -35,6 +35,15 @@ class LadyBird(QMainWindow):
         self.clearResults.triggered.connect(self.on_del)
         self.saveMenu.addAction(self.clearResults)
 
+        self.startButton = QPushButton("START", self)
+        self.startButton.move(150, 20)
+
+        self.saveButton = QPushButton("SAVE", self)
+        self.saveButton.move(250, 20)
+        self.saveButton.setDisabled(True)
+
+        self.startButton.clicked.connect(Race.startLB(self))
+
         self.lbrace = Race(self)
         self.setCentralWidget(self.lbrace)
 
@@ -48,8 +57,12 @@ class LadyBird(QMainWindow):
         self.pal.setColor(QtGui.QPalette.Inactive, QtGui.QPalette.Window, QtGui.QColor(230, 230, 190))
         self.setPalette(self.pal)
 
-        self.setFixedSize(QtCore.QSize(470, 710))
-        self.setWindowTitle("LadyBirds Race")
+        desktop = QtWidgets.QApplication.desktop()
+        rectscr = desktop.availableGeometry()
+        self.resize(int(rectscr.width() / 2.72), int(rectscr.height() / 1.23))
+        self.setMinimumSize(int(rectscr.width() / 2.73), int(rectscr.height() / 1.24))
+        self.setMaximumSize(int(rectscr.width() / 2), int(rectscr.height()))
+        self.setWindowTitle("LBRace_2")
         self.setWindowIcon(QIcon('lb.png'))
 
         self.show()
@@ -57,9 +70,6 @@ class LadyBird(QMainWindow):
     def on_displ(self):
         global modalWindow
         self.modalWindow = QtWidgets.QWidget(lbrace, QtCore.Qt.Window)
-
-
-
         self.modalWindow.setWindowTitle('The Score')
         self.modalWindow.resize(500, 700)
         self.modalWindow.setWindowModality(QtCore.Qt.WindowModal)
@@ -86,6 +96,20 @@ class LadyBird(QMainWindow):
             self.statusbar.showMessage(str('No Results to delete'))
         self.f.close()
 
+    def paintEvent(self, e):
+        lb = QPainter()
+        lb.begin(self)
+        self.drawRect(lb)
+        lb.end()
+
+    def drawRect(self, lb):
+        for i in range(5):
+            x = i * 100
+            col = QColor(0, 0, 0)
+            col.setNamedColor('green')
+            lb.setPen(col)
+            lb.setBrush(QColor(111, 150, 50))
+            lb.drawRect(x + 5, 120, 60, 550)
 
 
 class Race(QFrame):
@@ -100,12 +124,7 @@ class Race(QFrame):
 
         self.fin = 0
 
-        self.startButton = QPushButton("START", self)
-        self.startButton.move(150, 20)
 
-        self.saveButton = QPushButton("SAVE", self)
-        self.saveButton.move(250, 20)
-        self.saveButton.setDisabled(True)
 
         self.dlb = self.drawLb(609)
 
@@ -123,33 +142,12 @@ class Race(QFrame):
         self.lbl2.setPixmap(self.pixmap3)
         self.lbl2.move(415 + random.randint(-7, 7), self.c2y)
 
-        if self.c2y < 112:
-            self.fin = 1
-        self.startButton.clicked.connect(self.startLB)
+
+
 
         self.timer.timeout.connect(self.on_timeout)
 
         self.saveButton.clicked.connect(self.on_save)
-
-
-
-
-    def paintEvent(self, e):
-        lb = QPainter()
-        lb.begin(self)
-        self.drawRect(lb)
-        lb.end()
-
-
-    def drawRect(self, lb):
-        for i in range(5):
-            x = i * 100
-            col = QColor(0, 0, 0)
-            col.setNamedColor('green')
-            lb.setPen(col)
-            lb.setBrush(QColor(111, 150, 50))
-            lb.drawRect(x + 5, 80, 60, 570)
-
 
 
     def drawLb(self, y):
@@ -167,13 +165,14 @@ class Race(QFrame):
             ff.move(b * 100 + 5, 80)
 
     def keyPressEvent(self, e):
-
+        global fin, winner1
         if self.startButton.isEnabled() == False:
-            self.c2y -= 15 + random.randint(-7, 7)
+
+            self.c2y -= 10 + random.randint(-7, 7)
             self.c2x = 415 + random.randint(-7, 7)
             self.lbl2.move(self.c2x, self.c2y)
             self.lbl2.show()
-            if self.c2y < 112:
+            if self.c2y < 114:
                 self.timer.stop()
                 self.msg2Statusbar.emit('Finished')
                 self.startButton.setDisabled(False)
@@ -187,10 +186,13 @@ class Race(QFrame):
                 ff.setPixmap(pixmap2)
                 ff.move(405, 80)
                 ff.show()
+                self.winner1 = '5'
+
         QtWidgets.QFrame.keyPressEvent(self, e)
 
 
-    def startLB(self, e):
+    def startLB(self):
+        global fin
         pixmapsh2 = QPixmap("yl.png")
         shild2 = QLabel(self)
         shild2.resize(469, 20)
@@ -198,10 +200,10 @@ class Race(QFrame):
         shild2.move(1, 55)
         shild2.show()
         self.startButton.setDisabled(True)
-        self.msg2Statusbar.emit('Started')
+        # self.msg2Statusbar.emit('Started')
         self.ti = 0
         self.winner1 = 0
-        winner12 = None
+        # winner12 = None
         self.timer.start(10)
         c = 606
         istap = 0
@@ -222,9 +224,6 @@ class Race(QFrame):
         speedlist5.move(415, 650)
         speedlist5.show()
 
-        '''finish = Race.keyPressEvent(self)
-        if finish:
-            break startLB()'''
 
         while c >= 112:
             QtWidgets.qApp.processEvents()
@@ -274,6 +273,8 @@ class Race(QFrame):
                     break
 
             c = con
+            if self.fin == 1:
+                c = 100
 
         self.timer.stop()
 
