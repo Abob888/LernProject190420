@@ -36,21 +36,30 @@ class LadyBird(QMainWindow):
         self.saveMenu.addAction(self.clearResults)
 
         self.startButton = QPushButton("START", self)
-        self.startButton.move(150, 20)
+        self.startButton.move(130, 40)
 
         self.saveButton = QPushButton("SAVE", self)
-        self.saveButton.move(250, 20)
+        self.saveButton.move(250, 40)
         self.saveButton.setDisabled(True)
 
-        self.startButton.clicked.connect(Race.startLB(self))
+        self.ti = 0
+        self.timer = QTimer()
+        self.fin = 0
 
-        self.lbrace = Race(self)
-        self.setCentralWidget(self.lbrace)
+        self.startButton.clicked.connect(Race)
+
+
+        if self.startButton == 1:
+            self.lbrace = Race(self)
+            self.setCentralWidget(self.lbrace)
+
+        # self.startButton.clicked.connect(self.lbrace.startLB())
+
 
         self.statusbar = self.statusBar()
         self.statusbar.showMessage(str('Ready'))
 
-        self.lbrace.msg2Statusbar.connect(self.statusbar.showMessage)
+        # self.lbrace.msg2Statusbar.connect(self.statusbar.showMessage)
 
         self.pal = self.palette()
         self.pal.setColor(QtGui.QPalette.Normal, QtGui.QPalette.Window, QtGui.QColor(230, 230, 190))
@@ -114,7 +123,7 @@ class LadyBird(QMainWindow):
 
 class Race(QFrame):
 
-    msg2Statusbar = pyqtSignal(str)
+    # msg2Statusbar = pyqtSignal(str)
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -126,7 +135,7 @@ class Race(QFrame):
 
 
 
-        self.dlb = self.drawLb(609)
+        # self.dlb = self.drawLb(609)
 
         self.ts = QLabel(self)
         self.ts.setText('Time: ')
@@ -142,12 +151,14 @@ class Race(QFrame):
         self.lbl2.setPixmap(self.pixmap3)
         self.lbl2.move(415 + random.randint(-7, 7), self.c2y)
 
+        # self.raceFF = self.startLB()
 
 
 
-        self.timer.timeout.connect(self.on_timeout)
 
-        self.saveButton.clicked.connect(self.on_save)
+        # self.timer.timeout.connect(self.on_timeout)
+
+        # self.LadyBird.saveButton.clicked.connect(self.on_save)
 
 
     def drawLb(self, y):
@@ -166,27 +177,27 @@ class Race(QFrame):
 
     def keyPressEvent(self, e):
         global fin, winner1
-        if self.startButton.isEnabled() == False:
+        # if self.startButton.isEnabled() == False:
+        self.c2y -= 10 + random.randint(-7, 7)
+        self.c2x = 415 + random.randint(-7, 7)
+        self.lbl2.move(self.c2x, self.c2y)
+        self.lbl2.show()
+        if self.c2y < 114:
+            self.timer.stop()
+            self.msg2Statusbar.emit('Finished')
+            # self.startButton.setDisabled(False)
+            self.fin = 1
+            winner12 = QLabel(self)
+            winner12.setText('Winner')
+            winner12.move(415, 60)
+            winner12.show()
+            pixmap2 = QPixmap("finish.png")
+            ff = QLabel(self)
+            ff.setPixmap(pixmap2)
+            ff.move(405, 80)
+            ff.show()
+            self.winner1 = '5'
 
-            self.c2y -= 10 + random.randint(-7, 7)
-            self.c2x = 415 + random.randint(-7, 7)
-            self.lbl2.move(self.c2x, self.c2y)
-            self.lbl2.show()
-            if self.c2y < 114:
-                self.timer.stop()
-                self.msg2Statusbar.emit('Finished')
-                self.startButton.setDisabled(False)
-                self.fin = 1
-                winner12 = QLabel(self)
-                winner12.setText('Winner')
-                winner12.move(415, 60)
-                winner12.show()
-                pixmap2 = QPixmap("finish.png")
-                ff = QLabel(self)
-                ff.setPixmap(pixmap2)
-                ff.move(405, 80)
-                ff.show()
-                self.winner1 = '5'
 
         QtWidgets.QFrame.keyPressEvent(self, e)
 
@@ -199,7 +210,7 @@ class Race(QFrame):
         shild2.setPixmap(pixmapsh2)
         shild2.move(1, 55)
         shild2.show()
-        self.startButton.setDisabled(True)
+        # LadyBird.startButton(self).setDisabled(True)
         # self.msg2Statusbar.emit('Started')
         self.ti = 0
         self.winner1 = 0
@@ -278,8 +289,8 @@ class Race(QFrame):
 
         self.timer.stop()
 
-        self.msg2Statusbar.emit('Finished')
-        self.startButton.setDisabled(False)
+        # self.msg2Statusbar.emit('Finished')
+        # LadyBird.startButton.setDisabled(False)
         self.saveButton.setDisabled(False)
 
         return self.winner1
